@@ -129,11 +129,6 @@ Bounding boxes     | Heatmap              |Labels              | Combined boxes
 ![alt text][image7]| ![alt text][image19] |![alt text][image25]|![alt text][image13]
 ![alt text][image8]| ![alt text][image20] |![alt text][image26]|![alt text][image14]
 
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-
-![alt text][image14]
-
 ---
 
 ### Discussion
