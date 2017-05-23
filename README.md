@@ -62,7 +62,7 @@ Car                | Not car
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-I completed this step mostly by trial and error. I tried several combinations of HOG parameters (color_space, HOG orientations, pixels per cell, cells per block) and chose my final set based on accuracy of the model (see next step) and execution time. The parameters that worked best for me were:
+I came up with my final HOG parameters by trial and error. I tried several combinations of HOG parameters (color_space, HOG orientations, pixels per cell and cells per block) and chose my final set based on accuracy of the model (see next step) and execution time. The parameters that worked best for me were the following:
 
 Color space | Orientations | Pixels per cell | Cell per block | HOG channel
 :----------:|:------------:|:---------------:|:--------------:|:-----------
@@ -71,8 +71,11 @@ YCrCb       |      9       |        8        |        2       |     ALL
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using the LinearSVC() function provided by the sklearn library. I used the entire dataset provided for vehicles and non-vehicles for this project (GTI and KITT). The code for this is in the `process_data()` and `train()` functions in `search_classify.py`, lines 81 to 130. My model achieved an accuracy of 98.8%:
+I trained a linear SVM using the LinearSVC() function provided by the sklearn.svm library package. I trained the model using the entire dataset provided as part of this project for vehicles and non-vehicles (GTI and KITT). As part of the preprocessing step I'm converting the data to np.float64 and normalizing it using the sklearn StandardScaler. The code for this is in the `process_data()` and `train()` functions in `search_classify.py`, lines 81 to 130. 
 
+During the feature extraction step I used (aside from HOG features) both spatial binning (with dimensions value of 32x32) and histogram of colors (32 bins). In order to do this my pipeline invokes the following functions in the `lesson_function.py` module: `extract_features()`, `get_hog_features()`, `bin_spatial()` and `color_hist()`, all of which were adapted from the lesson materials.
+
+My model achieved an accuracy of 98.8%:
 ```
 Extracting training data and training model...
 Feature vector length: 8460
@@ -86,15 +89,19 @@ prediction: [ 0.  1.  0.  0.  1.  0.  1.  0.  0.  0.]
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-For this step I used the Hog sub-sampling windows search method, which allows to both extract features and make predictions. I adapted the `find_cars()` function from the class materials and defined it in the `search_classify.py` file, lines 15-78. The idea is to extract the hog features once from a portion of the image and pass the individual subsamples to the classifier. Although this functions allows to be invoked multiple times with varying scale values, I'm making a single call per frame with a 1.5 scale. 
+For this step I used the Hog sub-sampling windows search method, which allows to both extract features and make predictions. I adapted the `find_cars()` function from the class materials and defined it in the `search_classify.py` file, lines 15-78. The idea is to extract the hog features once from a portion of the image and pass the individual subsamples to the classifier to make predictions on each. Although this function allows to be invoked multiple times with varying scale values, I'm making a single call per frame with a 1.5 scale, which I found to provide nice results. 
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-I searched the images using a scale of 1.5 in all channels using YCrCb and spatial binning color and histograms of color. Here are some examples:
+In order to optimize my classifier I tried training variations of input data (subsets for vehicle and non-vehicle images) for training. However in the end training on the entire set (and using the right parameters) seemed to perform well enough and did not try other methods like data augmentation.
 
-![alt text][image5]
-![alt text][image6]
-![alt text][image8]
+As far as improving detections goes, I integrated a heat map to determine the areas where multiple detections take place ("hot" areas) and filter out the false positives ("cool" areas) by thresholding said heat map.
+
+Here are some example results on the test images:
+
+![alt text][image11]
+![alt text][image12]
+![alt text][image14]
 
 
 ---
@@ -107,9 +114,11 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+In order to filter out false positives I kept a record of detections over 20 frames of video using a deque. I then created a heat map using those detections and thresholded it to identify vehicle positions. I then used `scipy.ndimage.measurements.label()` to find the boxes from the heat map and draw them onto the image. 
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+The code for this step is defined in the `pipeline()` function in `search_classify.py`, lines 133-165.
+
+Here are examples of outputs produced by my pipeline at each step using the test images:
 
 Bounding boxes     | Heatmap              |Labels              | Combined boxes
 :-----------------:|:--------------------:|:------------------:|:---------------------:
@@ -127,9 +136,10 @@ Bounding boxes     | Heatmap              |Labels              | Combined boxes
 
 ---
 
-###Discussion
+### Discussion
 
-####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The trickiest part of the implementation for was figuring out the right combination of training parameters and detection technique that would consistently detect all cars in the test images with no false positives. Given the amount of experimentation -and time- it took to get it right I wonder if the parameter tunning techniques described in the lessons would have helped. I will be giving those a try at some point.
 
+As for potential improvements, in some instances the bounding boxes could have been more accurately defined around the shape of the vehicles. For my HOG sub-sampling window search implementation I would have liked to scan for varying scales but I didn't have much luck with that approach and had to cut my losses and move on.
