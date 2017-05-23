@@ -38,7 +38,7 @@ The goals / steps of this project are the following:
 [image24]: ./output_images/test_labels_out4.png
 [image25]: ./output_images/test_labels_out5.png
 [image26]: ./output_images/test_labels_out6.png
-[video1]: ./project_video.mp4
+[video1]: ./project_video_out.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -108,8 +108,8 @@ Here are some example results on the test images:
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+Here's a [link to my video result](./project_video_out.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
@@ -137,4 +137,4 @@ Bounding boxes     | Heatmap              |Labels              | Combined boxes
 
 The trickiest part of the implementation for was figuring out the right combination of training parameters and detection technique that would consistently detect all cars in the test images with no false positives. Given the amount of experimentation -and time- it took to get it right I wonder if the parameter tunning techniques described in the lessons would have helped. I will be giving those a try at some point.
 
-As for potential improvements, in some instances the bounding boxes could have been more accurately defined around the shape of the vehicles. For my HOG sub-sampling window search implementation I would have liked to scan for varying scales but I didn't have much luck with that approach and had to cut my losses and move on.
+As for potential improvements, in some instances the bounding boxes could have been more accurately defined around the shape of the vehicles. For my HOG sub-sampling window search implementation I would have liked to scan for varying scales but I didn't have much luck with that approach and had to cut my losses. This would also likely help track vehicles more accurately on every frame. 
